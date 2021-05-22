@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for hugo.
-GH_REPO="https://github.com/NeoHsu/asdf-hugo"
+GH_REPO="https://github.com/gohugoio/hugo"
 TOOL_NAME="hugo"
 TOOL_TEST="hugo --version"
 
@@ -36,15 +36,44 @@ list_all_versions() {
   list_github_tags
 }
 
+# get_arch () {
+#     local arch=""
+
+#     case "$(uname -m)" in
+#         x86_64|amd64) arch="64bit"; ;;
+#         i686|i386) arch="32bit"; ;;
+#         armv6l|armv7l) arch="ARM"; ;;
+#         aarch64|arm64) arch="ARM64"; ;;
+#         *)
+#             fail "Arch '$(uname -m)' not supported!"
+#             ;;
+#     esac
+
+#     echo -n $arch
+# }
+
+# get_platform () {
+#     local platform="$(uname)"
+
+#     case platform in
+#         Darwin) platform="macOS"; ;;
+#     esac
+
+#     echo -n $platform
+# }
+
 download_release() {
   local version filename url
   version="$1"
   filename="$2"
+  platform="macOS"
+  arch="64bit"
 
   # TODO: Adapt the release URL convention for hugo
-  url="$GH_REPO/archive/v${version}.tar.gz"
+  url="$GH_REPO/releases/download/v${version}/hugo_${version}_${platform}-${arch}.tar.gz"
 
   echo "* Downloading $TOOL_NAME release $version..."
+  echo "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
 }
 
@@ -58,8 +87,8 @@ install_version() {
   fi
 
   (
-    mkdir -p "$install_path"
-    cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+    mkdir -p "$install_path/bin"
+    cp -r "$ASDF_DOWNLOAD_PATH"/hugo "$install_path/bin"
 
     # TODO: Asert hugo executable exists.
     local tool_cmd
