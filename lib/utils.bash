@@ -74,13 +74,12 @@ download_release() {
   local version filename url
   version="$1"
   filename="$2"
-  platform="macOS"
-  arch="64bit"
+  platform=$(get_platform)
+  arch=$(get_arch)
 
   url="$GH_REPO/releases/download/v${version}/hugo_${version}_${platform}-${arch}.tar.gz"
 
   echo "* Downloading $TOOL_NAME release $version..."
-  echo "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
 }
 
