@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for hugo.
+# this is the correct GitHub homepage where releases can be downloaded for hugo.
 GH_REPO="https://github.com/gohugoio/hugo"
 TOOL_NAME="hugo"
 TOOL_TEST="hugo --version"
@@ -31,36 +31,44 @@ list_github_tags() {
 }
 
 list_all_versions() {
-  # TODO: Adapt this. By default we simply list the tag names from GitHub releases.
   # Change this function if hugo has other means of determining installable versions.
   list_github_tags
 }
 
-# get_arch () {
-#     local arch=""
+get_arch () {
+    local arch=""
 
-#     case "$(uname -m)" in
-#         x86_64|amd64) arch="64bit"; ;;
-#         i686|i386) arch="32bit"; ;;
-#         armv6l|armv7l) arch="ARM"; ;;
-#         aarch64|arm64) arch="ARM64"; ;;
-#         *)
-#             fail "Arch '$(uname -m)' not supported!"
-#             ;;
-#     esac
+    case "$(uname -m)" in
+        x86_64|amd64) arch="64bit"; ;;
+        i686|i386) arch="32bit"; ;;
+        armv6l|armv7l) arch="ARM"; ;;
+        aarch64|arm64) arch="ARM64"; ;;
+        *)
+            fail "Arch '$(uname -m)' not supported!"
+            ;;
+    esac
 
-#     echo -n $arch
-# }
+    echo -n $arch
+}
 
-# get_platform () {
-#     local platform="$(uname)"
+get_platform () {
+    local platform=""
 
-#     case platform in
-#         Darwin) platform="macOS"; ;;
-#     esac
+    case "$(uname | tr '[:upper:]' '[:lower:]')" in
+        darwin) platform="macOS"; ;;
+        linux) platform="Linux"; ;;
+        windows) platform="Windows"; ;;
+        openbsd) platform="OpenBSD"; ;;
+        netbsd) platform="NetBSD"; ;;
+        freebsd) platform="FreeBSD"; ;;
+        dragonfly) platform="DragonFlyBSD"; ;;
+        *)
+            fail "Platform '$(uname -m)' not supported!"
+            ;;
+    esac
 
-#     echo -n $platform
-# }
+    echo -n $platform
+}
 
 download_release() {
   local version filename url
@@ -69,7 +77,6 @@ download_release() {
   platform="macOS"
   arch="64bit"
 
-  # TODO: Adapt the release URL convention for hugo
   url="$GH_REPO/releases/download/v${version}/hugo_${version}_${platform}-${arch}.tar.gz"
 
   echo "* Downloading $TOOL_NAME release $version..."
