@@ -94,9 +94,9 @@ install_version() {
 
   (
     mkdir -p "$install_path/bin"
-    cp -r "$ASDF_DOWNLOAD_PATH"/hugo "$install_path/bin"
+    cp -r "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" "$install_path/bin/"
 
-    # TODO: Asert hugo executable exists.
+    # Asert hugo executable exists.
     local tool_cmd
     tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
     test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
