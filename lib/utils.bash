@@ -5,7 +5,7 @@ set -euo pipefail
 # this is the correct GitHub homepage where releases can be downloaded for hugo.
 GH_REPO="https://github.com/gohugoio/hugo"
 TOOL_NAME="hugo"
-TOOL_TEST="hugo --version"
+TOOL_TEST="hugo version"
 
 fail() {
   echo -e "asdf-$TOOL_NAME: $*"

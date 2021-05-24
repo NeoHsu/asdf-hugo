@@ -2,7 +2,7 @@
 
 # asdf-hugo ![Build](https://github.com/NeoHsu/asdf-hugo/workflows/Build/badge.svg) ![Lint](https://github.com/NeoHsu/asdf-hugo/workflows/Lint/badge.svg)
 
-[hugo](https://github.com/NeoHsu/asdf-hugo) plugin for the [asdf version manager](https://asdf-vm.com).
+[hugo](https://gohugo.io/) plugin for the [asdf version manager](https://asdf-vm.com).
 
 </div>
 
@@ -41,7 +41,7 @@ asdf install hugo latest
 asdf global hugo latest
 
 # Now hugo commands are available
-hugo --version
+hugo version
 ```
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to
