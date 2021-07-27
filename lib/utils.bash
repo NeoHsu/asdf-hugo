@@ -32,7 +32,9 @@ list_github_tags() {
 
 list_all_versions() {
   # Change this function if hugo has other means of determining installable versions.
-  list_github_tags
+  tags=$(list_github_tags)
+  echo "$tags"
+  echo "$tags" | sed 's/^/extended_/'
 }
 
 get_arch() {
@@ -73,11 +75,12 @@ get_platform() {
 download_release() {
   local version filename url
   version="$1"
+  version_path="${version//extended_/}"
   filename="$2"
   platform=$(get_platform)
   arch=$(get_arch)
 
-  url="$GH_REPO/releases/download/v${version}/hugo_${version}_${platform}-${arch}.tar.gz"
+  url="$GH_REPO/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.tar.gz"
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
