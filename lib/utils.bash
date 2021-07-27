@@ -32,9 +32,8 @@ list_github_tags() {
 
 list_all_versions() {
   # Change this function if hugo has other means of determining installable versions.
-  tags=$(list_github_tags)
+  local tags=$(list_github_tags)
   echo "$tags"
-  echo "$tags" | sed 's/^/extended_/'
 }
 
 get_arch() {
@@ -73,14 +72,13 @@ get_platform() {
 }
 
 download_release() {
-  local version filename url
-  version="$1"
-  version_path="${version//extended_/}"
-  filename="$2"
-  platform=$(get_platform)
-  arch=$(get_arch)
+  local version="$1"
+  local version_path="${version//extended_/}"
+  local filename="$2"
+  local platform=$(get_platform)
+  local arch=$(get_arch)
 
-  url="$GH_REPO/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.tar.gz"
+  local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.tar.gz"
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -100,8 +98,7 @@ install_version() {
     cp -r "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" "$install_path/bin/"
 
     # Asert hugo executable exists.
-    local tool_cmd
-    tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
+    local tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
     test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
 
     echo "$TOOL_NAME $version installation was successful!"
