@@ -51,6 +51,21 @@ hugo version
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to
 install & manage versions.
 
+## Extended builds for Sass/SCSS support
+
+To install an extended Hugo version with Sass/SCSS support simply prefix the version number in the `asdf install` command with `extended_`.
+
+```shell
+# Install extended hugo version
+asdf install hugo extended_0.85.0
+
+# Now you can manage it like you're used to
+asdf global hugo extended_0.85.0
+```
+
+**NOTE**: The extended builds for hugo are only available for 64bit Linux, macOS, and Windows.
+See the asset list at https://github.com/gohugoio/hugo/releases/latest.
+
 # Contributing
 
 Contributions of any kind welcome! See the [contributing guide](contributing.md).
