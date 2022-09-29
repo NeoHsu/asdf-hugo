@@ -76,7 +76,15 @@ download_release() {
   local version_path="${version//extended_/}"
   local filename="$2"
   local platform=$(get_platform)
-  local arch=$(get_arch)
+  local major_version=$(echo "$version" | awk -F. '{print $1}')
+  local minor_version=$(echo "$version" | awk -F. '{print $2}')
+
+  # For Mac downloads use universal binaries for releases >= 0.102.0
+  if [ "${platform}" = "macOS" ] && [ "${major_version}" -eq "0" ] && [ "${minor_version}" -ge "102" ]; then
+    local arch="universal"
+  else
+    local arch=$(get_arch)
+  fi
 
   local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.tar.gz"
 
