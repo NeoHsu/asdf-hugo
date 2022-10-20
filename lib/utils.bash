@@ -56,7 +56,7 @@ get_platform() {
   local platform=""
 
   case "$(uname | tr '[:upper:]' '[:lower:]')" in
-    darwin) platform="macOS" ;;
+    darwin) platform="darwin" ;;
     linux) platform="Linux" ;;
     windows) platform="Windows" ;;
     openbsd) platform="OpenBSD" ;;
@@ -80,10 +80,15 @@ download_release() {
   local minor_version=$(echo "$version" | awk -F. '{print $2}')
 
   # For Mac downloads use universal binaries for releases >= 0.102.0
-  if [ "${platform}" = "macOS" ] && [ "${major_version}" -eq "0" ] && [ "${minor_version}" -ge "102" ]; then
+  if [ "${platform}" = "darwin" ] && [ "${major_version}" -eq "0" ] && [ "${minor_version}" -ge "102" ]; then
     local arch="universal"
   else
     local arch=$(get_arch)
+  fi
+
+  # v0.103.0 changed naming conventions on the Hugo releases. This reverts if trying to install older version of Hugo.
+  if [ "${platform}" = "darwin" ] && [ "${major_version}" -eq "0" ] && [ "${minor_version}" -lt "103" ]; then
+    local platform="macOS"
   fi
 
   local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.tar.gz"
