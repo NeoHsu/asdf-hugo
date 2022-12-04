@@ -76,8 +76,8 @@ download_release() {
   local version_path="${version//extended_/}"
   local filename="$2"
   local platform=$(get_platform)
-  local major_version=$(echo "$version" | awk -F. '{print $1}')
-  local minor_version=$(echo "$version" | awk -F. '{print $2}')
+  local major_version=$(echo "$version_path" | awk -F. '{print $1}')
+  local minor_version=$(echo "$version_path" | awk -F. '{print $2}')
 
   # For Mac downloads use universal binaries for releases >= 0.102.0
   if [ "${platform}" = "darwin" ] && [ "${major_version}" -eq "0" ] && [ "${minor_version}" -ge "102" ]; then
