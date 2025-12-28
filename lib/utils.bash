@@ -36,6 +36,22 @@ list_all_versions() {
   echo "$tags"
 }
 
+# Determine release extension to download for a given version (tar.gz or pkg)
+get_release_ext() {
+  local version="$1"
+  local version_path="${version//extended_/}"
+  local major_version=$(echo "$version_path" | awk -F. '{print $1}')
+  local minor_version=$(echo "$version_path" | awk -F. '{print $2}')
+  local platform=$(get_platform)
+
+  # For macOS (darwin) use .pkg for Hugo minor versions greater than 153
+  if [ "${platform}" = "darwin" ] && [ "${major_version}" -eq "0" ] && [ "${minor_version}" -gt "153" ]; then
+    echo "pkg"
+  else
+    echo "tar.gz"
+  fi
+}
+
 get_arch() {
   local arch=""
 
@@ -91,7 +107,8 @@ download_release() {
     local platform="macOS"
   fi
 
-  local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.tar.gz"
+  local ext=$(get_release_ext "$version")
+  local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.${ext}"
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -108,9 +125,17 @@ install_version() {
 
   (
     mkdir -p "$install_path/bin"
-    cp -r "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" "$install_path/bin/"
 
-    # Asert hugo executable exists.
+    # If a macOS .pkg was downloaded use the system installer.
+    pkg_file=$(ls "$ASDF_DOWNLOAD_PATH"/hugo_*"${version}"*.pkg 2>/dev/null || true)
+    if [ -n "${pkg_file}" ]; then
+      echo "* Installing $TOOL_NAME from pkg ${pkg_file} to ${install_path}..."
+      installer -pkg "${pkg_file}" -target "${install_path}" || fail "Failed to run installer on ${pkg_file}"
+    else
+      cp -r "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" "$install_path/bin/"
+    fi
+
+    # Assert hugo executable exists
     local tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
     test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
 
