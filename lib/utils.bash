@@ -138,7 +138,6 @@ extract_release() {
     gzip -dc "$ASDF_DOWNLOAD_PATH/Payload" | (cd "$ASDF_DOWNLOAD_PATH" && cpio -idm ./hugo) >/dev/null 2>&1 ||
       fail "Could not extract hugo from Payload $filename"
 
-    rm -f "$ASDF_DOWNLOAD_PATH/Payload"
     # Clean up xar-extracted metadata files to keep the download path tidy
     rm -f "$ASDF_DOWNLOAD_PATH/Payload" \
           "$ASDF_DOWNLOAD_PATH/PackageInfo" \
