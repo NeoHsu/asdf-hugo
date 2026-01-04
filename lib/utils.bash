@@ -140,8 +140,8 @@ extract_release() {
 
     # Clean up xar-extracted metadata files to keep the download path tidy
     rm -f "$ASDF_DOWNLOAD_PATH/Payload" \
-          "$ASDF_DOWNLOAD_PATH/PackageInfo" \
-          "$ASDF_DOWNLOAD_PATH/Distribution"
+      "$ASDF_DOWNLOAD_PATH/PackageInfo" \
+      "$ASDF_DOWNLOAD_PATH/Distribution"
     rm -rf "$ASDF_DOWNLOAD_PATH/Resources" "$ASDF_DOWNLOAD_PATH/Scripts"
 
     # Remove the original pkg file now that we have extracted hugo
