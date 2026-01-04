@@ -157,7 +157,6 @@ extract_release() {
     # Extract directly into the ASDF download path
     tar -xzf "$filename" -C "$ASDF_DOWNLOAD_PATH" || fail "Could not extract $filename"
     rm -f "$filename"
-
   else
     fail "Unknown release format for $filename"
   fi
