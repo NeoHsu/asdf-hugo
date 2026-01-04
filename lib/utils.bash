@@ -48,8 +48,8 @@ get_release_ext() {
   local platform
   platform=$(get_platform)
 
-  # For macOS (darwin) use .pkg for Hugo minor versions greater than 153
-  if [ "${platform}" = "darwin" ] && [ "${major_version}" -eq "0" ] && [ "${minor_version}" -gt "153" ]; then
+  # For macOS (darwin) use .pkg for Hugo minor versions greater than or equal to 153 (since v0.153.0)
+  if [ "${platform}" = "darwin" ] && [ "${major_version}" -eq "0" ] && [ "${minor_version}" -ge "153" ]; then
     echo "pkg"
   else
     echo "tar.gz"
@@ -135,11 +135,18 @@ extract_release() {
     [ -f "$ASDF_DOWNLOAD_PATH/Payload" ] || fail "Payload not found inside pkg $filename"
 
     # Extract only the hugo file from the Payload into the download path
-    gzip -dc "$ASDF_DOWNLOAD_PATH/Payload" | (cd "$ASDF_DOWNLOAD_PATH" && cpio -idmv ./hugo) >/dev/null 2>&1 ||
+    gzip -dc "$ASDF_DOWNLOAD_PATH/Payload" | (cd "$ASDF_DOWNLOAD_PATH" && cpio -idm ./hugo) >/dev/null 2>&1 ||
       fail "Could not extract hugo from Payload $filename"
 
     rm -f "$ASDF_DOWNLOAD_PATH/Payload"
+    # Clean up xar-extracted metadata files to keep the download path tidy
+    rm -f "$ASDF_DOWNLOAD_PATH/Payload" \
+          "$ASDF_DOWNLOAD_PATH/PackageInfo" \
+          "$ASDF_DOWNLOAD_PATH/Distribution"
+    rm -rf "$ASDF_DOWNLOAD_PATH/Resources" "$ASDF_DOWNLOAD_PATH/Scripts"
 
+    # Remove the original pkg file now that we have extracted hugo
+    rm -f "$filename"
   elif [[ "$filename" == *.tar.gz ]]; then
     # Extract directly into the ASDF download path
     tar -xzf "$filename" -C "$ASDF_DOWNLOAD_PATH" || fail "Could not extract $filename"
@@ -169,7 +176,7 @@ install_version() {
     extract_release "$release_file"
 
     # Ensure hugo executable exists and make it executable
-    [ -f "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" ] || fail "hugo executablenot found after extracting $release_file"
+    [ -f "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" ] || fail "hugo executable not found after extracting $release_file"
     chmod +x "$ASDF_DOWNLOAD_PATH/$TOOL_NAME"
 
     cp -r "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" "$install_path/bin/"
