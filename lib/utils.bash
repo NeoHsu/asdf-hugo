@@ -124,8 +124,7 @@ download_release() {
 }
 
 # Extract a downloaded release (tar.gz or pkg) and place the `hugo` binary
-# at $ASDF_DOWNLOAD_PATH/$TOOL_NAME (executable). This makes installation
-# a simple copy regardless of package format.
+# at $ASDF_DOWNLOAD_PATH/$TOOL_NAME
 extract_release() {
   local filename="$1"
 
@@ -139,20 +138,12 @@ extract_release() {
     gzip -dc "$ASDF_DOWNLOAD_PATH/Payload" | (cd "$ASDF_DOWNLOAD_PATH" && cpio -idmv ./hugo) >/dev/null 2>&1 ||
       fail "Could not extract hugo from Payload $filename"
 
-    [ -f "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" ] || fail "hugo not found after extracting $filename"
-    chmod +x "$ASDF_DOWNLOAD_PATH/$TOOL_NAME"
     rm -f "$ASDF_DOWNLOAD_PATH/Payload"
 
   elif [[ "$filename" == *.tar.gz ]]; then
-    # Extract directly into the ASDF download path (previous simple behavior)
+    # Extract directly into the ASDF download path
     tar -xzf "$filename" -C "$ASDF_DOWNLOAD_PATH" || fail "Could not extract $filename"
-    # Expect the hugo executable to be at the root of $ASDF_DOWNLOAD_PATH
-    if [ -f "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" ]; then
-      chmod +x "$ASDF_DOWNLOAD_PATH/$TOOL_NAME"
-      rm -f "$filename"
-    else
-      fail "hugo not found after extracting $filename"
-    fi
+    rm -f "$filename"
 
   else
     fail "Unknown release format for $filename"
@@ -177,9 +168,12 @@ install_version() {
 
     extract_release "$release_file"
 
+    # Ensure hugo executable exists and make it executable
+    [ -f "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" ] || fail "hugo executablenot found after extracting $release_file"
+    chmod +x "$ASDF_DOWNLOAD_PATH/$TOOL_NAME"
+
     cp -r "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" "$install_path/bin/"
 
-    # Assert hugo executable exists
     local tool_cmd
     tool_cmd=$(echo "$TOOL_TEST" | cut -d' ' -f1)
     test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
