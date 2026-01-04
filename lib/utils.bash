@@ -136,7 +136,7 @@ extract_release() {
     [ -f "$ASDF_DOWNLOAD_PATH/Payload" ] || fail "Payload not found inside pkg $filename"
 
     # Extract only the hugo file from the Payload into the download path
-    gzip -dc "$ASDF_DOWNLOAD_PATH/Payload" | (cd "$ASDF_DOWNLOAD_PATH" && cpio -idmv ./hugo) >/dev/null 2>&1 || \
+    gzip -dc "$ASDF_DOWNLOAD_PATH/Payload" | (cd "$ASDF_DOWNLOAD_PATH" && cpio -idmv ./hugo) >/dev/null 2>&1 ||
       fail "Could not extract hugo from Payload $filename"
 
     [ -f "$ASDF_DOWNLOAD_PATH/$TOOL_NAME" ] || fail "hugo not found after extracting $filename"
