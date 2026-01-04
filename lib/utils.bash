@@ -130,19 +130,26 @@ extract_release() {
 
   mkdir -p "$ASDF_DOWNLOAD_PATH"
   if [[ "$filename" == *.pkg ]]; then
+    # Set up cleanup function for pkg extraction
+    cleanup_pkg_files() {
+      rm -f "$ASDF_DOWNLOAD_PATH/Payload" \
+        "$ASDF_DOWNLOAD_PATH/PackageInfo" \
+        "$ASDF_DOWNLOAD_PATH/Distribution"
+      rm -rf "$ASDF_DOWNLOAD_PATH/Resources" "$ASDF_DOWNLOAD_PATH/Scripts"
+    }
+
     # Extract xar entries directly into the ASDF download path
     (cd "$ASDF_DOWNLOAD_PATH" && xar -xf "$filename") || fail "Could not extract xar from $filename"
     [ -f "$ASDF_DOWNLOAD_PATH/Payload" ] || fail "Payload not found inside pkg $filename"
 
     # Extract only the hugo file from the Payload into the download path
-    gzip -dc "$ASDF_DOWNLOAD_PATH/Payload" | (cd "$ASDF_DOWNLOAD_PATH" && cpio -idm ./hugo) >/dev/null 2>&1 ||
+    if ! gzip -dc "$ASDF_DOWNLOAD_PATH/Payload" | (cd "$ASDF_DOWNLOAD_PATH" && cpio -idm ./hugo) >/dev/null 2>&1; then
+      cleanup_pkg_files
       fail "Could not extract hugo from Payload $filename"
+    fi
 
     # Clean up xar-extracted metadata files to keep the download path tidy
-    rm -f "$ASDF_DOWNLOAD_PATH/Payload" \
-      "$ASDF_DOWNLOAD_PATH/PackageInfo" \
-      "$ASDF_DOWNLOAD_PATH/Distribution"
-    rm -rf "$ASDF_DOWNLOAD_PATH/Resources" "$ASDF_DOWNLOAD_PATH/Scripts"
+    cleanup_pkg_files
 
     # Remove the original pkg file now that we have extracted hugo
     rm -f "$filename"
