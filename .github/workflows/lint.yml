@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Run ShellCheck
-        run: shellcheck -x bin/*
+        run: shellcheck -x bin/* lib/*
 
   format:
     runs-on: macos-latest
