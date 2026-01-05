@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/NeoHsu/asdf-hugo/compare/v1.0.0...v1.1.0) (2026-01-05)
+
+
+### Features
+
+* **macOS:** handle pkg installation ([#9](https://github.com/NeoHsu/asdf-hugo/issues/9)) ([aec131c](https://github.com/NeoHsu/asdf-hugo/commit/aec131c6005000093fa13982ca93b298cb83d9d5))
+
 ## 1.0.0 (2021-07-20)
 
 
