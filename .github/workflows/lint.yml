@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Run ShellCheck
-        run: shellcheck -x bin/*
+        run: shellcheck -x bin/* lib/*
 
   format:
     runs-on: macos-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Install shfmt
         run: brew install shfmt
       - name: Run shfmt
