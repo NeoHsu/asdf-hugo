@@ -37,6 +37,36 @@ list_all_versions() {
   echo "$tags"
 }
 
+# Expand sorted versions with special variant tags.
+# For each version V (one per input line):
+# - emit V
+# - if V >= 0.43 emit extended_V
+# - if V >= 0.137 emit extended_withdeploy_V
+expand_versions() {
+  local regular=()
+  local extended=()
+  local extended_withdeploy=()
+
+  while IFS= read -r ver; do
+    [ -z "${ver}" ] && continue
+    regular+=("$ver")
+    read -r version_path major_version minor_version <<<"$(parse_version "$ver")"
+    if [[ "$major_version" =~ ^[0-9]+$ ]] && [[ "$minor_version" =~ ^[0-9]+$ ]]; then
+      if [ "$major_version" -eq 0 ] && [ "$minor_version" -ge 43 ]; then
+        extended+=("extended_${ver}")
+      fi
+      if [ "$major_version" -eq 0 ] && [ "$minor_version" -ge 137 ]; then
+        extended_withdeploy+=("extended_withdeploy_${ver}")
+      fi
+    fi
+  done
+
+  # Print regular versions first, then extended, then extended_withdeploy
+  printf '%s\n' "${regular[@]:-}"
+  printf '%s\n' "${extended[@]:-}"
+  printf '%s\n' "${extended_withdeploy[@]:-}"
+}
+
 # Parse a version string into a plain version path and its major/minor parts.
 # Supports prefixes like "extended_" and "extended_withdeploy_".
 parse_version() {
