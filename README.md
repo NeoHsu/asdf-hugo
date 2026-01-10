@@ -72,10 +72,10 @@ functionality.
 
 ```shell
 # Install extended/deploy hugo version
-asdf install hugo extended_withdeploy_0.154.3
+asdf install hugo extended_withdeploy-0.154.3
 
 # Manage it the same way
-asdf set --home hugo extended_withdeploy_0.154.3
+asdf set --home hugo extended_withdeploy-0.154.3
 ```
 
 See the [Editions section in the Hugo README](https://github.com/gohugoio/hugo/blob/master/README.md#editions) for more

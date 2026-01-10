@@ -53,10 +53,10 @@ expand_versions() {
     read -r version_path major_version minor_version <<<"$(parse_version "$ver")"
     if [[ "$major_version" =~ ^[0-9]+$ ]] && [[ "$minor_version" =~ ^[0-9]+$ ]]; then
       if [ "$major_version" -eq 0 ] && [ "$minor_version" -ge 43 ]; then
-        extended+=("extended_${ver}")
+        extended+=("extended-${ver}")
       fi
       if [ "$major_version" -eq 0 ] && [ "$minor_version" -ge 137 ]; then
-        extended_withdeploy+=("extended_withdeploy_${ver}")
+        extended_withdeploy+=("extended_withdeploy-${ver}")
       fi
     fi
   done
@@ -68,12 +68,15 @@ expand_versions() {
 }
 
 # Parse a version string into a plain version path and its major/minor parts.
-# Supports prefixes like "extended_" and "extended_withdeploy_".
+# Supports prefixes like "extended_", "extended-", "extended_withdeploy_",
+# and "extended_withdeploy-".
 parse_version() {
   local version="$1"
   local version_path="${version}"
   version_path="${version_path#extended_withdeploy_}"
+  version_path="${version_path#extended_withdeploy-}"
   version_path="${version_path#extended_}"
+  version_path="${version_path#extended-}"
   local major_version
   major_version=$(echo "$version_path" | awk -F. '{print $1}')
   local minor_version
@@ -154,7 +157,13 @@ download_release() {
 
   local ext
   ext=$(get_release_ext "$version")
-  local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.${ext}"
+  # Some expanded variants use '-' between prefix and version (eg
+  # extended-0.154.3). GitHub release asset names use '_' separators, so
+  # convert '-' to '_' for the artifact filename while keeping the
+  # original `version` value used elsewhere.
+  local version_file
+  version_file="${version//-/_}"
+  local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version_file}_${platform}-${arch}.${ext}"
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
