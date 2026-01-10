@@ -37,14 +37,57 @@ list_all_versions() {
   echo "$tags"
 }
 
-# Determine release extension to download for a given version (tar.gz or pkg)
-get_release_ext() {
+# Expand sorted versions with special variant tags.
+# For each version V (one per input line):
+# - emit V
+# - if V >= 0.43 emit extended-V
+# - if V >= 0.137 emit extended_withdeploy-V
+expand_versions() {
+  local regular=()
+  local extended=()
+  local extended_withdeploy=()
+
+  while IFS= read -r ver; do
+    [ -z "${ver}" ] && continue
+    regular+=("$ver")
+    read -r version_path major_version minor_version <<<"$(parse_version "$ver")"
+    if [[ "$major_version" =~ ^[0-9]+$ ]] && [[ "$minor_version" =~ ^[0-9]+$ ]]; then
+      if [ "$major_version" -eq 0 ] && [ "$minor_version" -ge 43 ]; then
+        extended+=("extended-${ver}")
+      fi
+      if [ "$major_version" -eq 0 ] && [ "$minor_version" -ge 137 ]; then
+        extended_withdeploy+=("extended_withdeploy-${ver}")
+      fi
+    fi
+  done
+
+  # Print regular versions first, then extended_withdeploy, then extended
+  printf '%s\n' "${regular[@]:-}"
+  printf '%s\n' "${extended_withdeploy[@]:-}"
+  printf '%s\n' "${extended[@]:-}"
+}
+
+# Parse a version string into a plain version path and its major/minor parts.
+# Supports prefixes like "extended_", "extended-", "extended_withdeploy_",
+# and "extended_withdeploy-".
+parse_version() {
   local version="$1"
-  local version_path="${version//extended_/}"
+  local version_path="${version}"
+  version_path="${version_path#extended_withdeploy_}"
+  version_path="${version_path#extended_withdeploy-}"
+  version_path="${version_path#extended_}"
+  version_path="${version_path#extended-}"
   local major_version
   major_version=$(echo "$version_path" | awk -F. '{print $1}')
   local minor_version
   minor_version=$(echo "$version_path" | awk -F. '{print $2}')
+  printf '%s %s %s' "$version_path" "$major_version" "$minor_version"
+}
+
+# Determine release extension to download for a given version (tar.gz or pkg)
+get_release_ext() {
+  local version="$1"
+  read -r version_path major_version minor_version <<<"$(parse_version "$version")"
   local platform
   platform=$(get_platform)
 
@@ -93,14 +136,13 @@ get_platform() {
 
 download_release() {
   local version="$1"
-  local version_path="${version//extended_/}"
+  local version_path
   local filename="$2"
+  local major_version
+  local minor_version
+  read -r version_path major_version minor_version <<<"$(parse_version "$version")"
   local platform
   platform=$(get_platform)
-  local major_version
-  major_version=$(echo "$version_path" | awk -F. '{print $1}')
-  local minor_version
-  minor_version=$(echo "$version_path" | awk -F. '{print $2}')
 
   # For Mac downloads use universal binaries for releases >= 0.102.0
   local arch
@@ -117,7 +159,13 @@ download_release() {
 
   local ext
   ext=$(get_release_ext "$version")
-  local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version}_${platform}-${arch}.${ext}"
+  # Some expanded variants use '-' between prefix and version (eg
+  # extended-0.154.3). GitHub release asset names use '_' separators, so
+  # convert '-' to '_' for the artifact filename while keeping the
+  # original `version` value used elsewhere.
+  local version_file
+  version_file="${version//-/_}"
+  local url="${GH_REPO}/releases/download/v${version_path}/hugo_${version_file}_${platform}-${arch}.${ext}"
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
