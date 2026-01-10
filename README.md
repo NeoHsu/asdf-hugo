@@ -39,13 +39,13 @@ hugo:
 
 ```shell
 # Show all installable versions
-asdf list-all hugo
+asdf list all hugo
 
 # Install specific version
 asdf install hugo latest
 
-# Set a version globally (on your ~/.tool-versions file)
-asdf global hugo latest
+# Set a version for your user (writes to your ~/.tool-versions)
+asdf set -u hugo latest
 
 # Now hugo commands are available
 hugo version
@@ -64,7 +64,7 @@ command with `extended_`.
 asdf install hugo extended_0.154.3
 
 # Now you can manage it like you're used to
-asdf global hugo extended_0.154.3
+asdf set -u hugo extended_0.154.3
 ```
 
 There is also an "extended/deploy" variant which includes the extended build plus additional deployment/cloud
@@ -75,7 +75,7 @@ functionality.
 asdf install hugo extended_withdeploy_0.154.3
 
 # Manage it the same way
-asdf global hugo extended_withdeploy_0.154.3
+asdf set --home hugo extended_withdeploy_0.154.3
 ```
 
 See the [Editions section in the Hugo README](https://github.com/gohugoio/hugo/blob/master/README.md#editions) for more
