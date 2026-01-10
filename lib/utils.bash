@@ -40,8 +40,8 @@ list_all_versions() {
 # Expand sorted versions with special variant tags.
 # For each version V (one per input line):
 # - emit V
-# - if V >= 0.43 emit extended_V
-# - if V >= 0.137 emit extended_withdeploy_V
+# - if V >= 0.43 emit extended-V
+# - if V >= 0.137 emit extended_withdeploy-V
 expand_versions() {
   local regular=()
   local extended=()
