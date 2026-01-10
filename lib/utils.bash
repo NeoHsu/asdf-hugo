@@ -37,14 +37,24 @@ list_all_versions() {
   echo "$tags"
 }
 
-# Determine release extension to download for a given version (tar.gz or pkg)
-get_release_ext() {
+# Parse a version string into a plain version path and its major/minor parts.
+# Supports prefixes like "extended_" and "extended_withdeploy_".
+parse_version() {
   local version="$1"
-  local version_path="${version//extended_/}"
+  local version_path="${version}"
+  version_path="${version_path#extended_withdeploy_}"
+  version_path="${version_path#extended_}"
   local major_version
   major_version=$(echo "$version_path" | awk -F. '{print $1}')
   local minor_version
   minor_version=$(echo "$version_path" | awk -F. '{print $2}')
+  printf '%s %s %s' "$version_path" "$major_version" "$minor_version"
+}
+
+# Determine release extension to download for a given version (tar.gz or pkg)
+get_release_ext() {
+  local version="$1"
+  read -r version_path major_version minor_version <<<"$(parse_version "$version")"
   local platform
   platform=$(get_platform)
 
@@ -93,14 +103,11 @@ get_platform() {
 
 download_release() {
   local version="$1"
-  local version_path="${version//extended_/}"
+  local version_path
   local filename="$2"
+  read -r version_path major_version minor_version <<<"$(parse_version "$version")"
   local platform
   platform=$(get_platform)
-  local major_version
-  major_version=$(echo "$version_path" | awk -F. '{print $1}')
-  local minor_version
-  minor_version=$(echo "$version_path" | awk -F. '{print $2}')
 
   # For Mac downloads use universal binaries for releases >= 0.102.0
   local arch

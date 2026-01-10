@@ -12,9 +12,12 @@
 
 # Contents
 
+- [asdf-hugo  ](#asdf-hugo--)
+- [Build History](#build-history)
+- [Contents](#contents)
 - [Dependencies](#dependencies)
 - [Install](#install)
-- [Why?](#why)
+  - [Extended builds for Sass/SCSS support and deploy edition](#extended-builds-for-sassscss-support-and-deploy-edition)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -51,20 +54,36 @@ hugo version
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to
 install & manage versions.
 
-## Extended builds for Sass/SCSS support
+## Extended builds for Sass/SCSS support and deploy edition
 
-To install an extended Hugo version with Sass/SCSS support simply prefix the version number in the `asdf install` command with `extended_`.
+To install an extended Hugo version with Sass/SCSS support simply prefix the version number in the `asdf install`
+command with `extended_`.
 
 ```shell
 # Install extended hugo version
-asdf install hugo extended_0.85.0
+asdf install hugo extended_0.154.3
 
 # Now you can manage it like you're used to
-asdf global hugo extended_0.85.0
+asdf global hugo extended_0.154.3
 ```
 
-**NOTE**: The extended builds for hugo are only available for 64bit Linux, macOS, and Windows.
-See the asset list at https://github.com/gohugoio/hugo/releases/latest.
+There is also an "extended/deploy" variant which includes the extended build plus additional deployment/cloud
+functionality.
+
+```shell
+# Install extended/deploy hugo version
+asdf install hugo extended_withdeploy_0.154.3
+
+# Manage it the same way
+asdf global hugo extended_withdeploy_0.154.3
+```
+
+See the [Editions section in the Hugo README](https://github.com/gohugoio/hugo/blob/master/README.md#editions) for more
+details.
+
+**NOTE**: The extended builds for Hugo (including the with deploy edition) are only available for 64bit Linux, macOS,
+and Windows. See the asset list at https://github.com/gohugoio/hugo/releases/latest.
+
 
 # Contributing
 
