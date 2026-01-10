@@ -138,6 +138,8 @@ download_release() {
   local version="$1"
   local version_path
   local filename="$2"
+  local major_version
+  local minor_version
   read -r version_path major_version minor_version <<<"$(parse_version "$version")"
   local platform
   platform=$(get_platform)
