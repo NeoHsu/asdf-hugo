@@ -81,7 +81,7 @@ asdf set --home hugo extended_withdeploy-0.154.3
 See the [Editions section in the Hugo README](https://github.com/gohugoio/hugo/blob/master/README.md#editions) for more
 details.
 
-**NOTE**: The extended builds for Hugo (including the with deploy edition) are only available for 64bit Linux, macOS,
+**NOTE**: The extended builds for Hugo (including the with-deploy edition) are only available for 64bit Linux, macOS,
 and Windows. See the asset list at https://github.com/gohugoio/hugo/releases/latest.
 
 
