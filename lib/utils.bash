@@ -61,10 +61,10 @@ expand_versions() {
     fi
   done
 
-  # Print regular versions first, then extended, then extended_withdeploy
+  # Print regular versions first, then extended_withdeploy, then extended
   printf '%s\n' "${regular[@]:-}"
-  printf '%s\n' "${extended[@]:-}"
   printf '%s\n' "${extended_withdeploy[@]:-}"
+  printf '%s\n' "${extended[@]:-}"
 }
 
 # Parse a version string into a plain version path and its major/minor parts.
