@@ -50,14 +50,11 @@ expand_versions() {
   while IFS= read -r ver; do
     [ -z "${ver}" ] && continue
     regular+=("$ver")
-    read -r version_path major_version minor_version <<<"$(parse_version "$ver")"
-    if [[ "$major_version" =~ ^[0-9]+$ ]] && [[ "$minor_version" =~ ^[0-9]+$ ]]; then
-      if [ "$major_version" -eq 0 ] && [ "$minor_version" -ge 43 ]; then
-        extended+=("extended-${ver}")
-      fi
-      if [ "$major_version" -eq 0 ] && [ "$minor_version" -ge 137 ]; then
-        extended_withdeploy+=("extended_withdeploy-${ver}")
-      fi
+    if version_at_least "$ver" 0 43; then
+      extended+=("extended-${ver}")
+    fi
+    if version_at_least "$ver" 0 137; then
+      extended_withdeploy+=("extended_withdeploy-${ver}")
     fi
   done
 
@@ -82,6 +79,97 @@ parse_version() {
   local minor_version
   minor_version=$(echo "$version_path" | awk -F. '{print $2}')
   printf '%s %s %s' "$version_path" "$major_version" "$minor_version"
+}
+
+version_at_least() {
+  local version="$1"
+  local minimum_major="$2"
+  local minimum_minor="$3"
+  local version_path
+  local major_version
+  local minor_version
+
+  read -r version_path major_version minor_version <<<"$(parse_version "$version")"
+
+  if ! [[ "$major_version" =~ ^[0-9]+$ ]] || ! [[ "$minor_version" =~ ^[0-9]+$ ]]; then
+    return 1
+  fi
+
+  if [ "$major_version" -gt "$minimum_major" ]; then
+    return 0
+  fi
+
+  [ "$major_version" -eq "$minimum_major" ] && [ "$minor_version" -ge "$minimum_minor" ]
+}
+
+latest_stable_version() {
+  local query="${1:-}"
+  local variant="regular"
+  local version_query="$query"
+  local latest=""
+
+  case "$query" in
+    extended_withdeploy | extended_withdeploy- | extended_withdeploy_)
+      variant="extended_withdeploy"
+      version_query=""
+      ;;
+    extended_withdeploy-* | extended_withdeploy_*)
+      variant="extended_withdeploy"
+      version_query="${query#extended_withdeploy-}"
+      version_query="${version_query#extended_withdeploy_}"
+      ;;
+    extended | extended- | extended_)
+      variant="extended"
+      version_query=""
+      ;;
+    extended-* | extended_*)
+      variant="extended"
+      version_query="${query#extended-}"
+      version_query="${version_query#extended_}"
+      ;;
+  esac
+
+  while IFS= read -r ver; do
+    [ -z "$ver" ] && continue
+    if [ -n "$version_query" ] && [ "${ver#"$version_query"}" = "$ver" ]; then
+      continue
+    fi
+
+    case "$variant" in
+      regular)
+        latest="$ver"
+        ;;
+      extended)
+        if version_at_least "$ver" 0 43; then
+          latest="extended-${ver}"
+        fi
+        ;;
+      extended_withdeploy)
+        if version_at_least "$ver" 0 137; then
+          latest="extended_withdeploy-${ver}"
+        fi
+        ;;
+    esac
+  done < <(list_all_versions | sort_versions)
+
+  [ -n "$latest" ] || fail "No stable version found matching '${query}'"
+  printf '%s\n' "$latest"
+}
+
+resolve_version() {
+  local version="$1"
+
+  case "$version" in
+    latest)
+      latest_stable_version
+      ;;
+    latest:*)
+      latest_stable_version "${version#latest:}"
+      ;;
+    *)
+      printf '%s\n' "$version"
+      ;;
+  esac
 }
 
 # Determine release extension to download for a given version (tar.gz or pkg)
@@ -219,12 +307,15 @@ install_version() {
     fail "asdf-$TOOL_NAME supports release installs only"
   fi
 
+  local resolved_version
+  resolved_version=$(resolve_version "$version")
+
   (
     mkdir -p "$install_path/bin"
     # Ensure the release is extracted and the `hugo` binary is available
-    ext=$(get_release_ext "$version")
-    release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$version.$ext"
-    [ -f "$release_file" ] || fail "Release file for $TOOL_NAME $version not found in $ASDF_DOWNLOAD_PATH"
+    ext=$(get_release_ext "$resolved_version")
+    release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$resolved_version.$ext"
+    [ -f "$release_file" ] || fail "Release file for $TOOL_NAME $resolved_version not found in $ASDF_DOWNLOAD_PATH"
 
     extract_release "$release_file"
 
@@ -238,9 +329,9 @@ install_version() {
     tool_cmd=$(echo "$TOOL_TEST" | cut -d' ' -f1)
     test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
 
-    echo "$TOOL_NAME $version installation was successful!"
+    echo "$TOOL_NAME $resolved_version installation was successful!"
   ) || (
     rm -rf "$install_path"
-    fail "An error ocurred while installing $TOOL_NAME $version."
+    fail "An error ocurred while installing $TOOL_NAME $resolved_version."
   )
 }

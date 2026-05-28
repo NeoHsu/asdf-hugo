@@ -7,9 +7,11 @@ source "$(dirname "$0")/../lib/utils.bash"
 
 mkdir -p "$ASDF_DOWNLOAD_PATH"
 
+resolved_version=$(resolve_version "$ASDF_INSTALL_VERSION")
+
 # Determine proper extension for the requested version (tar.gz or pkg)
-ext=$(get_release_ext "$ASDF_INSTALL_VERSION")
-release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.$ext"
+ext=$(get_release_ext "$resolved_version")
+release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$resolved_version.$ext"
 
 # Download release file to the download directory
-download_release "$ASDF_INSTALL_VERSION" "$release_file"
+download_release "$resolved_version" "$release_file"

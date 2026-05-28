@@ -17,7 +17,7 @@
 - [Contents](#contents)
 - [Dependencies](#dependencies)
 - [Install](#install)
-  - [Extended builds for Sass/SCSS support and deploy edition](#extended-builds-for-sassscss-support-and-deploy-edition)
+  - [Version variants](#version-variants)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -35,13 +35,13 @@ asdf plugin add hugo
 asdf plugin add hugo https://github.com/NeoHsu/asdf-hugo.git
 ```
 
-hugo:
+Hugo:
 
 ```shell
 # Show all installable versions
 asdf list all hugo
 
-# Install specific version
+# Install the latest regular Hugo release
 asdf install hugo latest
 
 # Set a version for your user (writes to your ~/.tool-versions)
@@ -54,29 +54,51 @@ hugo version
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to
 install & manage versions.
 
-## Extended builds for Sass/SCSS support and deploy edition
+## Version variants
 
-To install an extended Hugo version with Sass/SCSS support simply prefix the version number in the `asdf install`
-command with `extended_`.
+This plugin supports the Hugo editions published in the official
+[gohugoio/hugo releases](https://github.com/gohugoio/hugo/releases):
 
-```shell
-# Install extended hugo version
-asdf install hugo extended_0.154.3
+| Variant | Latest alias | Specific version example | Notes |
+| --- | --- | --- | --- |
+| Regular | `latest` | `0.162.0` | Standard Hugo release. |
+| Extended | `latest:extended` | `extended-0.162.0` | Includes Sass/SCSS support. |
+| Extended with deploy | `latest:extended_withdeploy` | `extended_withdeploy-0.162.0` | Includes extended plus deploy/cloud functionality. |
 
-# Now you can manage it like you're used to
-asdf set -u hugo extended_0.154.3
-```
-
-There is also an "extended/deploy" variant which includes the extended build plus additional deployment/cloud
-functionality.
+Install the latest release for each variant:
 
 ```shell
-# Install extended/deploy hugo version
-asdf install hugo extended_withdeploy-0.154.3
+# Regular Hugo
+asdf install hugo latest
+asdf set -u hugo latest
 
-# Manage it the same way
-asdf set --home hugo extended_withdeploy-0.154.3
+# Extended Hugo
+asdf install hugo latest:extended
+asdf set -u hugo latest:extended
+
+# Extended Hugo with deploy support
+asdf install hugo latest:extended_withdeploy
+asdf set -u hugo latest:extended_withdeploy
 ```
+
+Install a specific release:
+
+```shell
+# Regular Hugo
+asdf install hugo 0.162.0
+asdf set -u hugo 0.162.0
+
+# Extended Hugo
+asdf install hugo extended-0.162.0
+asdf set -u hugo extended-0.162.0
+
+# Extended Hugo with deploy support
+asdf install hugo extended_withdeploy-0.162.0
+asdf set -u hugo extended_withdeploy-0.162.0
+```
+
+The plugin also accepts underscore separators for compatibility, such as `extended_0.162.0` and
+`extended_withdeploy_0.162.0`.
 
 See the [Editions section in the Hugo README](https://github.com/gohugoio/hugo/blob/master/README.md#editions) for more
 details.
